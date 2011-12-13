@@ -34,7 +34,7 @@
 #include "z80.h"
 #endif
 
-#define VERSION	"0.1.0"
+#define VERSION	"0.1.1"
 
 int initialise_curses(void);
 void status(const char *st);
@@ -416,27 +416,34 @@ int main(int argc, char *argv[])
 					{
 						if(infos[f1cycle].name)
 						{
-							char st[16+strlen(infos[f1cycle].name)];
-							sprintf(st, "F%d: info %s", f1cycle+2, infos[f1cycle].name);
+							const char *name=key_name(infos[f1cycle].key);
+							if(!name)
+								name="[no such key]";
+							char st[8+strlen(name)+strlen(infos[f1cycle].name)];
+							sprintf(st, "%s: info %s", name, infos[f1cycle].name);
 							status(st);
 						}
 						f1cycle++;
 						if(f1cycle>=ninfos) f1cycle=0;
 					}
 				break;
-				default:
-					if((key>=KEY_F(2))&&(key<(signed)KEY_F(2+ninfos)))
+				default:;
+					unsigned int i;
+					for(i=0;i<ninfos;i++)
 					{
-						int i=key-KEY_F(2);
-						bool d=display[i]=!display[i];
-						if(infos[i].name)
+						if(key==infos[i].key)
 						{
-							char st[16+strlen(infos[i].name)];
-							sprintf(st, "%s info %s", d?"Enabled":"Disabled", infos[i].name);
-							status(st);
+							bool d=display[i]=!display[i];
+							if(infos[i].name)
+							{
+								char st[16+strlen(infos[i].name)];
+								sprintf(st, "%s info %s", d?"Enabled":"Disabled", infos[i].name);
+								status(st);
+							}
+							break;
 						}
 					}
-					else
+					if(i==ninfos)
 					{
 						if(!left && (key<256))
 						{

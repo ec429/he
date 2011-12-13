@@ -13,11 +13,13 @@ To load a new file, press C-f; to reload the current file (discarding your chang
 To exit, press C-x.  If you haven't saved, you will be asked for confirmation.
 
 ==Infos==
-he can display various kinds of information about the data under the cursor.  Tap F1 repeatedly to cycle through a list of items, and their corresponding F keys to toggle each one.  Info items are documented below.
+he can display various kinds of information about the data under the cursor.  Tap F1 repeatedly to cycle through a list of items, and the listed keys to toggle each one.  Info items are documented below.
 It is possible to control which info items are compiled into him, by altering the file "info_choice.h"; changing the value of a #define to 0 will prevent the corresponding item from being compiled in.
 ===Decimal Reads===
+Toggle: #
 This item displays the decimal values of the byte and (16-bit) word under the cursor, as signed and unsigned.  As well as the word starting at the current byte, it also shows the value of the 'aligned word'; if the address is odd, this will be different from the unaligned word.
 By default the 16-bit reads are big-endian; the endianness can be toggled with C-e.
 ===Z80 Disassembly===
+Toggle: C-d
 This item disassembles a full ZiLog Z80 opcode starting at the cursor, and displays it in mnemonic form.  It also displays the breakdown of the opcode into S (shiftstate), X, Y, and Z parts, in the notation of <http://www.z80.info/decoding.htm>.
 When this info item is enabled, the right cursor key will advance to the next opcode rather than the next byte.

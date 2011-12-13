@@ -6,6 +6,7 @@ typedef struct
 	const char *name;
 	int minw;
 	int (*render)(unsigned int addr, string bytes, bool draw, int maxw); // returns width used
+	int key;
 }
 info;
 

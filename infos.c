@@ -47,7 +47,7 @@ int render_decimalreads(unsigned int addr, string bytes, bool draw, int maxw)
 #include "z80.h"
 #endif
 
-int add_info(const char *name, int minw, int render(unsigned int, string, bool, int));
+int add_info(const char *name, int minw, int render(unsigned int, string, bool, int), int);
 
 int init_infos(void)
 {
@@ -55,11 +55,11 @@ int init_infos(void)
 	infos=NULL;
 	int e=0;
 	#if INFO_DECIMAL_READS
-	if((e=add_info("Decimal Reads", 7, render_decimalreads))) { free(infos); return(e); }
+	if((e=add_info("Decimal Reads", 7, render_decimalreads, '#'))) { free(infos); return(e); }
 	#endif
 	#if INFO_Z80_DISASSEMBLER
 	zinf=ninfos;
-	if((e=add_info("Z80 Disassembler", 23, render_z80disasm))) { free(infos); return(e); }
+	if((e=add_info("Z80 Disassembler", 23, render_z80disasm, 4))) { free(infos); return(e); }
 	#endif
 	display=malloc(ninfos*sizeof(bool));
 	if(!display) { free(infos); return(-1); }
@@ -67,7 +67,7 @@ int init_infos(void)
 	return(0);
 }
 
-int add_info(const char *name, int minw, int render(unsigned int, string, bool, int))
+int add_info(const char *name, int minw, int render(unsigned int, string, bool, int), int key)
 {
 	unsigned int n=ninfos++;
 	info *ni=realloc(infos, ninfos*sizeof(info));
@@ -76,7 +76,7 @@ int add_info(const char *name, int minw, int render(unsigned int, string, bool, 
 		ninfos=n;
 		return(-1);
 	}
-	(infos=ni)[n]=(info){.name=name, .minw=minw, .render=render};
+	(infos=ni)[n]=(info){.name=name, .minw=minw, .render=render, .key=key};
 	return(0);
 }
 
