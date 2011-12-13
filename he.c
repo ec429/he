@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include <curses.h>
 #include <locale.h>
 #include <errno.h>
@@ -38,6 +39,7 @@
 int initialise_curses(void);
 void status(const char *st);
 void curs_status(unsigned int y, unsigned int x, unsigned int hcols, unsigned int scroll);
+void draw_title(const char *file, string fbuf, bool unsaved);
 
 int main(int argc, char *argv[])
 {
@@ -69,47 +71,24 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "he: failed to init_infos\n");
 		return(EXIT_FAILURE);
 	}
+	bool unsaved=!file;
 	unsigned int rows, cols;
 	getmaxyx(stdscr, rows, cols);
-	string titlebar=make_string(" he");
-	append_str(&titlebar, " "VERSION);
-	if(file && (titlebar.i+strlen(file)+3<cols))
-	{
-		append_str(&titlebar, " \"");
-		append_str(&titlebar, file);
-		append_str(&titlebar, "\"");
-	}
-	if(fbuf.i)
-	{
-		char bytes[32];
-		snprintf(bytes, 32, "%zu", fbuf.i);
-		if(titlebar.i+strlen(bytes)+9<cols)
-		{
-			append_str(&titlebar, " (");
-			append_str(&titlebar, bytes);
-			append_str(&titlebar, " bytes)");
-		}
-	}
-	attron(A_REVERSE);
-	mvprintw(0, 0, "%s", titlebar.buf);
-	unsigned int y, x;
-	getyx(stdscr, y, x);
-	for(;x<cols;x++)
-		addch(' ');
-	attroff(A_REVERSE);
-	free_string(&titlebar);
+	draw_title(file, fbuf, unsaved);
 	unsigned int hcols=(cols-13)/4;
 	status("Ready");
 	unsigned int scroll=0, cursy=0, cursx=0;
 	bool left=true;
 	unsigned int f1cycle=0;
 	lendian=false;
+	int half=0;
 	int errupt=0;
 	while(!errupt)
 	{
 		unsigned int irows=1+countirows((cursy+scroll)*hcols+cursx, fbuf, cols);
 		unsigned int scrolljump=(rows-irows-2)/2;
 		render_irows((cursy+scroll)*hcols+cursx, fbuf, cols, rows-irows);
+		unsigned int y, x;
 		for(y=2;y<rows-irows;y++)
 		{
 			mvprintw(y, 0, "0x%08x ", (y+scroll-2)*hcols);
@@ -120,8 +99,22 @@ int main(int argc, char *argv[])
 				{
 					unsigned char c=fbuf.buf[addr];
 					if((y==cursy+2)&&(x==cursx))
-						attron(left?A_STANDOUT|A_BOLD:A_BOLD);
-					mvprintw(y, (x*3)+11, "%02x", c);
+					{
+						if(half)
+						{
+							attron(A_BOLD);
+							mvprintw(y, (x*3)+11, "%02x", c);
+							attron(A_STANDOUT);
+							mvprintw(y, (x*3)+12, "%01x", c&0xf);
+						}
+						else
+						{
+							attron(left?A_STANDOUT|A_BOLD:A_BOLD);
+							mvprintw(y, (x*3)+11, "%02x", c);
+						}
+					}
+					else
+						mvprintw(y, (x*3)+11, "%02x", c);
 					attroff(A_STANDOUT|A_BOLD);
 					addch(' ');
 					if(c&0x80)
@@ -151,12 +144,46 @@ int main(int argc, char *argv[])
 			if(x<hcols) break;
 		}
 		int key=getch();
-		/*if((key>=32)&&(key<127))
+		if(left&&isxdigit(key))
 		{
-			status("Error: editing not done yet");
+			char h[2]={key, 0};
+			unsigned int hv;
+			if(sscanf(h, "%x", &hv)==1)
+			{
+				unsigned int addr=(scroll+cursy)*hcols+cursx;
+				if(addr<fbuf.i)
+				{
+					unsigned char b=fbuf.buf[addr];
+					if(half) b=(b&0xf0)|(hv&0xf);
+					else b=(b&0xf)|((hv&0xf)<<4);
+					fbuf.buf[addr]=b;
+					unsaved=true;
+				}
+				else if(addr==fbuf.i)
+				{
+					append_char(&fbuf, half?hv&0xf:(hv&0xf)<<4);
+					unsaved=true;
+				}
+				draw_title(file, fbuf, unsaved);
+				half++;
+				if(half>1)
+				{
+					half=0;
+					cursx++;
+					if(cursx>=hcols)
+					{
+						cursx-=hcols;
+						goto kdown;
+					}
+					if((scroll+cursy)*hcols+cursx>fbuf.i)
+						cursx--;
+					curs_status(cursy, cursx, hcols, scroll);
+				}
+			}
 		}
-		else*/
+		else
 		{
+			half=0;
 			switch(key)
 			{
 				case 5: // C-e = toggle endianness
@@ -333,4 +360,39 @@ int initialise_curses(void)
 	}
 	curs_set(0);
 	return(0);
+}
+
+void draw_title(const char *file, string fbuf, bool unsaved)
+{
+	unsigned int rows, cols;
+	getmaxyx(stdscr, rows, cols);
+	string titlebar=make_string(" he");
+	append_str(&titlebar, " "VERSION);
+	if(file && (titlebar.i+strlen(file)+3<cols))
+	{
+		append_str(&titlebar, " \"");
+		append_str(&titlebar, file);
+		append_str(&titlebar, "\"");
+	}
+	if(unsaved)
+		append_char(&titlebar, '*');
+	if(fbuf.i)
+	{
+		char bytes[32];
+		snprintf(bytes, 32, "%zu", fbuf.i);
+		if(titlebar.i+strlen(bytes)+9<cols)
+		{
+			append_str(&titlebar, " (");
+			append_str(&titlebar, bytes);
+			append_str(&titlebar, " bytes)");
+		}
+	}
+	attron(A_REVERSE);
+	mvprintw(0, 0, "%s", titlebar.buf);
+	unsigned int y, x;
+	getyx(stdscr, y, x);
+	for(;x<cols;x++)
+		addch(' ');
+	attroff(A_REVERSE);
+	free_string(&titlebar);
 }
