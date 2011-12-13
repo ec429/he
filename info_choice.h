@@ -1,2 +1,3 @@
 #define INFO_DECIMAL_READS		1
+#define INFO_BINARY				1
 #define INFO_Z80_DISASSEMBLER	1

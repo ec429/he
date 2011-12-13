@@ -43,6 +43,27 @@ int render_decimalreads(unsigned int addr, string bytes, bool draw, int maxw)
 }
 #endif
 
+#if INFO_BINARY
+int render_binary(unsigned int addr, string bytes, bool draw, int maxw)
+{
+	if(bytes.i<=addr) return(0);
+	if(maxw<13) return(0);
+	if(draw)
+	{
+		char bin[9];
+		bin[8]=0;
+		unsigned char b=bytes.buf[addr];
+		for(int i=0;i<8;i++)
+		{
+			bin[i]=(b&0x80)?'1':'0';
+			b<<=1;
+		}
+		printw("BIN:%s ", bin);
+	}
+	return(13);
+}
+#endif
+
 #if INFO_Z80_DISASSEMBLER
 #include "z80.h"
 #endif
@@ -56,6 +77,9 @@ int init_infos(void)
 	int e=0;
 	#if INFO_DECIMAL_READS
 	if((e=add_info("Decimal Reads", 7, render_decimalreads, '#'))) { free(infos); return(e); }
+	#endif
+	#if INFO_BINARY
+	if((e=add_info("Binary Byte", 13, render_binary, '!'))) { free(infos); return(e); }
 	#endif
 	#if INFO_Z80_DISASSEMBLER
 	zinf=ninfos;
