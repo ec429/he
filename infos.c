@@ -116,6 +116,7 @@ void render_irows(unsigned int addr, string bytes, unsigned int cols, unsigned i
 					{
 						move(basey+r, uw[r]);
 						infos[i].render(addr, bytes, true, w);
+						clrtoeol();
 						uw[r]+=u;
 						break;
 					}
@@ -132,6 +133,7 @@ void render_irows(unsigned int addr, string bytes, unsigned int cols, unsigned i
 					{
 						move(basey+r, uw[r]);
 						infos[i].render(addr, bytes, true, w);
+						clrtoeol();
 						uw[r]=u;
 						rows++;
 					}

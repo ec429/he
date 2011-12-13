@@ -64,8 +64,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "he: failed to init_infos\n");
 		return(EXIT_FAILURE);
 	}
-	/* for testing */
-	if(ninfos) display[0]=true;
 	unsigned int rows, cols;
 	getmaxyx(stdscr, rows, cols);
 	string titlebar=make_string(" he");
@@ -99,6 +97,7 @@ int main(int argc, char *argv[])
 	status("Ready");
 	unsigned int scroll=0, cursy=0, cursx=0;
 	bool left=true;
+	unsigned int f1cycle=0;
 	int errupt=0;
 	while(!errupt)
 	{
@@ -229,16 +228,39 @@ int main(int argc, char *argv[])
 				case 9:
 					left=!left;
 				break;
-				default:
-				{
-					const char *name=key_name(key);
-					if(name)
+				case KEY_F(1):
+					if(f1cycle>=ninfos) f1cycle=0;
+					if(infos[f1cycle].name)
 					{
-						char st[20+strlen(name)];
-						sprintf(st, "No binding for key %s", name);
+						char st[16+strlen(infos[f1cycle].name)];
+						sprintf(st, "F%d: info %s", f1cycle+2, infos[f1cycle].name);
 						status(st);
 					}
-				}
+					f1cycle++;
+					if(f1cycle>=ninfos) f1cycle=0;
+				break;
+				default:
+					if((key>=KEY_F(2))&&(key<(signed)KEY_F(2+ninfos)))
+					{
+						int i=key-KEY_F(2);
+						bool d=display[i]=!display[i];
+						if(infos[i].name)
+						{
+							char st[16+strlen(infos[i].name)];
+							sprintf(st, "%s info %s", d?"Enabled":"Disabled", infos[i].name);
+							status(st);
+						}
+					}
+					else
+					{
+						const char *name=key_name(key);
+						if(name)
+						{
+							char st[20+strlen(name)];
+							sprintf(st, "No binding for key %s", name);
+							status(st);
+						}
+					}
 				break;
 			}
 		}
