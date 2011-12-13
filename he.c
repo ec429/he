@@ -26,6 +26,7 @@
 
 #include "bits.h"
 #include "keynames.h"
+#include "infos.h"
 
 #define VERSION	"0.0.1"
 
@@ -58,6 +59,13 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "he: curses was not set up correctly\n");
 		return(EXIT_FAILURE);
 	}
+	if(init_infos())
+	{
+		fprintf(stderr, "he: failed to init_infos\n");
+		return(EXIT_FAILURE);
+	}
+	/* for testing */
+	if(ninfos) display[0]=true;
 	unsigned int rows, cols;
 	getmaxyx(stdscr, rows, cols);
 	string titlebar=make_string(" he");
@@ -88,14 +96,15 @@ int main(int argc, char *argv[])
 	attroff(A_REVERSE);
 	free_string(&titlebar);
 	unsigned int hcols=(cols-13)/4;
-	unsigned int irows=1; // status only for now
 	status("Ready");
 	unsigned int scroll=0, cursy=0, cursx=0;
-	unsigned int scrolljump=(rows-irows-2)/2;
 	bool left=true;
 	int errupt=0;
 	while(!errupt)
 	{
+		unsigned int irows=1+countirows((cursy+scroll)*hcols+cursx, fbuf, cols);
+		unsigned int scrolljump=(rows-irows-2)/2;
+		render_irows((cursy+scroll)*hcols+cursx, fbuf, cols, rows-irows);
 		for(y=2;y<rows-irows;y++)
 		{
 			mvprintw(y, 0, "0x%08x ", (y+scroll-2)*hcols);

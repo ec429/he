@@ -4,8 +4,8 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 LDFLAGS := -lncurses
 
-INCLUDES := bits.h keynames.h
-LIBS := bits.o keynames.o
+INCLUDES := bits.h keynames.h infos.h
+LIBS := bits.o keynames.o infos.o
 
 all: he
 
