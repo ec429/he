@@ -1,0 +1,22 @@
+he - a hex editor for assembly programmers
+
+==Display==
+his display is bracketed above by the titlebar (showing the current filename and length in bytes) and below by the 'infos' area, which includes the status line.  (See the section on 'Infos', below).
+The main body of the display is given over to data.  These data are arranged in rows (in an 80-column terminal, each row is 16 bytes); the address on the left, the hexadecimal in the middle, and ASCII on the right.  In the ASCII display, characters with the high bit set are displayed in inverse video.
+
+==Editing==
+he has two input modes, hex and char; these are toggled with Tab.  The cursor will be highlighted in the pane corresponding to the current input mode.
+You can change the byte under the cursor by typing hex digits (in hex mode) or any character (in char mode); the cursor will advance to the right as you type.  You can also insert or delete bytes with Ins and Del.
+The cursor can be moved with the cursor keys or with PgUp/PgDn; the display will jumpscroll when the cursor is moved off the screen.
+The buffer can be saved with C-o, or saved to a new filename with C-p.
+To exit (without saving!) press C-x.
+
+==Infos==
+he can display various kinds of information about the data under the cursor.  Tap F1 repeatedly to cycle through a list of items, and their corresponding F keys to toggle each one.  Info items are documented below.
+It is possible to control which info items are compiled into him, by altering the file "info_choice.h"; changing the value of a #define to 0 will prevent the corresponding item from being compiled in.
+===Decimal Reads===
+This item displays the decimal values of the byte and (16-bit) word under the cursor, as signed and unsigned.  As well as the word starting at the current byte, it also shows the value of the 'aligned word'; if the address is odd, this will be different from the unaligned word.
+By default the 16-bit reads are big-endian; the endianness can be toggled with C-e.
+===Z80 Disassembly===
+This item disassembles a full ZiLog Z80 opcode starting at the cursor, and displays it in mnemonic form.  It also displays the breakdown of the opcode into S (shiftstate), X, Y, and Z parts, in the notation of <http://www.z80.info/decoding.htm>.
+When this info item is enabled, the right cursor key will advance to the next opcode rather than the next byte.
