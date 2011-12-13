@@ -96,16 +96,40 @@ int main(int argc, char *argv[])
 		addch(' ');
 	attroff(A_REVERSE);
 	free_string(&titlebar);
+	unsigned int hcols=(cols-13)/4;
+	unsigned int irows=1; // status only for now
 	status("Ready");
 	int errupt=0;
 	while(!errupt)
 	{
+		for(y=2;y<rows-irows;y++)
+		{
+			mvprintw(y, 0, "0x%08x ", (y-2)*hcols);
+			for(x=0;x<hcols;x++)
+			{
+				unsigned int addr=(y-2)*hcols+x;
+				if(addr<fbuf.i)
+				{
+					unsigned char c=fbuf.buf[addr];
+					mvprintw(y, (x*3)+11, "%02x ", c);
+					if(c&0x80)
+						attron(A_REVERSE);
+					c&=0x7f;
+					bool pr=(c>=0x20)&&(c<0x7F);
+					mvaddch(y, x+(hcols*3)+13, pr?c:'.');
+					attroff(A_REVERSE);
+				}
+				else
+					break;
+			}
+			if(x<hcols) break;
+		}
 		int key=getch();
-		if((key>=32)&&(key<127))
+		/*if((key>=32)&&(key<127))
 		{
 			status("Error: editing not done yet");
 		}
-		else
+		else*/
 		{
 			switch(key)
 			{
