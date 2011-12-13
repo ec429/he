@@ -450,7 +450,7 @@ int render_z80disasm(unsigned int addr, string bytes, bool draw, int maxw)
 							sprintf(what, "%sn", tbl_alu[y]);
 					break;
 					case 7:
-						sprintf(what, "RST %hhu", y<<3);
+						sprintf(what, "RST %02x", y<<3);
 					break;
 					default:
 						strcpy(what, "Error z");
