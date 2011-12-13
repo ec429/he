@@ -2,7 +2,6 @@
 #include "z80.h"
 
 #if INFO_Z80_DISASSEMBLER
-
 const char *tbl_r[8]={"B","C","D","E","H","L","(HL)","A"};
 const char *tbl_rp[4]={"BC","DE","HL","SP"};
 const char *tbl_rp2[4]={"BC","DE","HL","AF"};
@@ -16,7 +15,29 @@ const char *tbl_bli_b[4]={"LD","CP","IN","OT"};
 int render_z80disasm(unsigned int addr, string bytes, bool draw, int maxw)
 {
 	zeat=1;
-	if(bytes.i<=addr) return(0);
+	char what[32]="";
+	z80disasm z=z80disasm_opcode(addr, bytes, what);
+	int w=5+strlen(what);
+	if(w>maxw) return(0);
+	bool xyz=(w+22<=maxw);
+	if(xyz) w+=22;
+	bool sheat=(w+6<=maxw);
+	if(sheat) w+=6;
+	if(draw)
+	{
+		if(xyz)
+			printw("S:%hhu X:%hhu Y:%hhu p%hhu q%hhu Z:%hhu ", z.shift, z.x, z.y, z.p, z.q, z.z);
+		if(sheat)
+			printw("Len:%hhu ", z.eat);
+		printw("Z80:%s ", what);
+	}
+	zeat=z.eat;
+	return(w);
+}
+
+z80disasm z80disasm_opcode(unsigned int addr, string bytes, char *what)
+{
+	if(bytes.i<=addr) return((z80disasm){.eat=0});
 	int more=bytes.i-addr;
 	unsigned char b=bytes.buf[addr];
 	int shift=0, prefs=0;
@@ -44,7 +65,6 @@ int render_z80disasm(unsigned int addr, string bytes, bool draw, int maxw)
 	}
 	unsigned char x=b>>6, y=(b>>3)&7, z=b&7, p=y>>1, q=y&1;
 	int eat=1;
-	char what[32]="";
 	int ixy=shift&3;
 	if(ixy==3) ixy=2;
 	const char *ixify=((y==4)||(y==5))?((const char *[3]){"","IX","IY"}[ixy]):"";
@@ -463,21 +483,6 @@ int render_z80disasm(unsigned int addr, string bytes, bool draw, int maxw)
 		}
 	}
 	eat+=prefs;
-	int w=5+strlen(what);
-	if(w>maxw) return(0);
-	bool xyz=(w+22<=maxw);
-	if(xyz) w+=22;
-	bool sheat=(w+6<=maxw);
-	if(sheat) w+=6;
-	if(draw)
-	{
-		if(xyz)
-			printw("S:%hhu X:%hhu Y:%hhu p%hhu q%hhu Z:%hhu ", shift, x, y, p, q, z);
-		if(sheat)
-			printw("Len:%hhu ", eat);
-		printw("Z80:%s ", what);
-	}
-	zeat=eat;
-	return(w);
+	return((z80disasm){.shift=shift, .x=x, .y=y, .z=z, .p=p, .q=q, .eat=eat});
 }
 #endif
