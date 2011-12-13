@@ -29,16 +29,9 @@
 
 #define VERSION	"0.0.1"
 
-typedef enum
-{
-	C_NORMAL=1,
-}
-colour;
-
 int initialise_curses(void);
-void initialise_colours(void);
-
 void status(const char *st);
+void curs_status(unsigned int y, unsigned int x, unsigned int hcols, unsigned int scroll);
 
 int main(int argc, char *argv[])
 {
@@ -65,8 +58,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "he: curses was not set up correctly\n");
 		return(EXIT_FAILURE);
 	}
-	initialise_colours();
-	attron(COLOR_PAIR(C_NORMAL));
 	unsigned int rows, cols;
 	getmaxyx(stdscr, rows, cols);
 	string titlebar=make_string(" he");
@@ -99,28 +90,50 @@ int main(int argc, char *argv[])
 	unsigned int hcols=(cols-13)/4;
 	unsigned int irows=1; // status only for now
 	status("Ready");
+	unsigned int scroll=0, cursy=0, cursx=0;
+	unsigned int scrolljump=(rows-irows-2)/2;
+	bool left=true;
 	int errupt=0;
 	while(!errupt)
 	{
 		for(y=2;y<rows-irows;y++)
 		{
-			mvprintw(y, 0, "0x%08x ", (y-2)*hcols);
+			mvprintw(y, 0, "0x%08x ", (y+scroll-2)*hcols);
 			for(x=0;x<hcols;x++)
 			{
-				unsigned int addr=(y-2)*hcols+x;
+				unsigned int addr=(y+scroll-2)*hcols+x;
 				if(addr<fbuf.i)
 				{
 					unsigned char c=fbuf.buf[addr];
-					mvprintw(y, (x*3)+11, "%02x ", c);
+					if((y==cursy+2)&&(x==cursx))
+						attron(left?A_STANDOUT|A_BOLD:A_BOLD);
+					mvprintw(y, (x*3)+11, "%02x", c);
+					attroff(A_STANDOUT|A_BOLD);
+					addch(' ');
 					if(c&0x80)
 						attron(A_REVERSE);
 					c&=0x7f;
 					bool pr=(c>=0x20)&&(c<0x7F);
+					if((y==cursy+2)&&(x==cursx))
+						attron(left?A_BOLD:A_STANDOUT|A_BOLD);
 					mvaddch(y, x+(hcols*3)+13, pr?c:'.');
-					attroff(A_REVERSE);
+					attroff(A_REVERSE|A_STANDOUT|A_BOLD);
 				}
 				else
+				{
+					if((y==cursy+2)&&(x==cursx))
+						attron(A_STANDOUT);
+					if(left)
+						mvprintw(y, (x*3)+11, "  ");
+					else
+						mvaddch(y, x+(hcols*3)+13, ' ');
+					attroff(A_STANDOUT);
+					if(!left)
+						mvprintw(y, (x*3)+11, "  ");
+					else
+						mvaddch(y, x+(hcols*3)+13, ' ');
 					break;
+				}
 			}
 			if(x<hcols) break;
 		}
@@ -135,6 +148,63 @@ int main(int argc, char *argv[])
 			{
 				case 24: // C-x = exit
 					errupt++;
+				break;
+				case KEY_UP:
+					kup:
+					if(cursy) cursy--;
+					else
+					{
+						if(scroll)
+						{
+							if(scroll>=scrolljump)
+							{
+								scroll-=scrolljump;
+								cursy=scrolljump;
+							}
+							else
+							{
+								cursy=scroll;
+								scroll=0;
+							}
+						}
+						else
+							cursx=0;
+					}
+					curs_status(cursy, cursx, hcols, scroll);
+				break;
+				case KEY_DOWN:
+					kdown:
+					cursy++;
+					if((scroll+cursy)*hcols+cursx>fbuf.i)
+					{
+						if((scroll+cursy)*hcols>fbuf.i)
+							cursy--;
+						cursx=fbuf.i-(scroll+cursy)*hcols;
+					}
+					curs_status(cursy, cursx, hcols, scroll);
+				break;
+				case KEY_LEFT:
+					if(cursx) cursx--;
+					else
+					{
+						cursx=hcols-1;
+						goto kup;
+					}
+					curs_status(cursy, cursx, hcols, scroll);
+				break;
+				case KEY_RIGHT:
+					cursx++;
+					if(cursx>=hcols)
+					{
+						cursx=0;
+						goto kdown;
+					}
+					if((scroll+cursy)*hcols+cursx>fbuf.i)
+						cursx--;
+					curs_status(cursy, cursx, hcols, scroll);
+				break;
+				case 9:
+					left=!left;
 				break;
 				default:
 				{
@@ -167,6 +237,13 @@ void status(const char *st)
 	attroff(A_BOLD);
 }
 
+void curs_status(unsigned int y, unsigned int x, unsigned int hcols, unsigned int scroll)
+{
+	char st[64];
+	snprintf(st, 64, "(%hu,%hu) = 0x%08x", y, x, (scroll+y)*hcols+x);
+	status(st);
+}
+
 int initialise_curses(void)
 {
 	initscr();
@@ -195,12 +272,6 @@ int initialise_curses(void)
 		fprintf(stderr, "he: initialise_curses: keypad() call failed\n");
 		return(1);
 	}
-	start_color();
-	curs_set(1);
+	curs_set(0);
 	return(0);
-}
-
-void initialise_colours(void)
-{
-	init_pair(C_NORMAL, COLOR_WHITE, COLOR_BLACK);
 }

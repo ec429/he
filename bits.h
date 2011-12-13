@@ -12,6 +12,7 @@ typedef struct
 string;
 
 #define min(a,b)	((a)<(b)?(a):(b))
+#define max(a,b)	((a)>(b)?(a):(b))
 
 char *fgetl(FILE *); // gets a line of string data; returns a malloc-like pointer
 char *slurp(FILE *); // gets a file of string data; returns a malloc-like pointer
