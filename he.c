@@ -53,7 +53,10 @@ int main(int argc, char *argv[])
 		else if(strcmp(argv[arg], "--no-colour")==0)
 			colour=false;
 		else
-			file=argv[arg];
+		{
+			free(file);
+			file=strdup(argv[arg]);
+		}
 	}
 	string fbuf=null_string();
 	if(file)

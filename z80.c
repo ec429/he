@@ -135,7 +135,6 @@ z80disasm z80disasm_opcode(unsigned int addr, string bytes, char *what)
 	}
 	else if(shift&2)
 	{
-		strcpy(what, "ED not done!");
 		switch(x)
 		{
 			case 0:
@@ -185,7 +184,7 @@ z80disasm z80disasm_opcode(unsigned int addr, string bytes, char *what)
 			break;
 			case 2:
 				if((z<4)&&(y>=4))
-					sprintf(what, "%s%s", tbl_bli_b[y-4], tbl_bli_a[z]);
+					sprintf(what, "%s%s", tbl_bli_b[z], tbl_bli_a[y-4]);
 				else
 					strcpy(what, "Invalid-ED (Long NOP)");
 			break;
