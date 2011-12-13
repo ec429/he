@@ -44,7 +44,7 @@ void draw_title(const char *file, string fbuf, bool unsaved);
 int main(int argc, char *argv[])
 {
 	setlocale(LC_ALL, "");
-	const char *file=NULL; // laziness and single file, for now
+	char *file=NULL;
 	for(int arg=1;arg<argc;arg++)
 	{
 		file=argv[arg];
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	string fbuf=null_string();
 	if(file)
 	{
-		FILE *f=fopen(file, "r");
+		FILE *f=fopen(file, "rb");
 		if(!f)
 		{
 			fprintf(stderr, "he: file '%s' could not be opened: %s\n", file, strerror(errno));
@@ -190,6 +190,56 @@ int main(int argc, char *argv[])
 				case 5: // C-e = toggle endianness
 					lendian=!lendian;
 					status(lendian?"Little Endian mode selected":"Big Endian mode selected");
+				break;
+				case 16: // C-p = write out a coPy
+					free(file);
+					file=NULL;
+					/* fallthrough */
+				case 15: // C-o = write Out
+					if(!file)
+					{
+						string fn=init_string();
+						int key;
+						do
+						{
+							char st[cols];
+							if(fn.i+10>cols)
+								snprintf(st, cols, "Save as: >%s", fn.buf+fn.i+11-cols);
+							else
+								snprintf(st, cols, "Save as: %s", fn.buf);
+							status(st);
+							key=getch();
+							if((key>=32)&&(key<127)) append_char(&fn, key);
+							else if(key==KEY_BACKSPACE) fn.buf[fn.i=max(fn.i, 1)-1]=0;
+						} while(!((key==KEY_ENTER)||(key==13)));
+						file=fn.buf;
+					}
+					if(file)
+					{
+						FILE *f=fopen(file, "wb");
+						if(!f)
+						{
+							char st[cols];
+							if(strlen(strerror(errno))+strlen(file)+33<cols)
+								sprintf(st, "he: file '%s' could not be opened: %s", file, strerror(errno));
+							else if(strlen(strerror(errno))+30<cols)
+								sprintf(st, "he: file could not be opened: %s", strerror(errno));
+							else
+								sprintf(st, "fopen: %s", strerror(errno));
+							status(st);
+						}
+						else
+						{
+							for(unsigned int i=0;i<fbuf.i;i++)
+								fputc(fbuf.buf[i], f);
+							fclose(f);
+							char st[32];
+							sprintf(st, "Wrote out %zu bytes", fbuf.i);
+							status(st);
+							unsaved=false;
+						}
+						draw_title(file, fbuf, unsaved);
+					}
 				break;
 				case 24: // C-x = exit
 					errupt++;
