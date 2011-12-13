@@ -27,6 +27,11 @@
 #include "bits.h"
 #include "keynames.h"
 #include "infos.h"
+#include "info_choice.h"
+
+#if INFO_Z80_DISASSEMBLER
+#include "z80.h"
+#endif
 
 #define VERSION	"0.0.1"
 
@@ -219,11 +224,15 @@ int main(int argc, char *argv[])
 					}
 					curs_status(cursy, cursx, hcols, scroll);
 				break;
-				case KEY_RIGHT:
-					cursx++;
+				case KEY_RIGHT:;
+					int eat=1;
+					#if INFO_Z80_DISASSEMBLER
+					if(display[zinf]&&(zeat>0)&&(zeat<hcols)) eat=zeat;
+					#endif
+					cursx+=eat;
 					if(cursx>=hcols)
 					{
-						cursx=0;
+						cursx-=hcols;
 						goto kdown;
 					}
 					if((scroll+cursy)*hcols+cursx>fbuf.i)

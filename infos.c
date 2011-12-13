@@ -58,6 +58,7 @@ int init_infos(void)
 	if((e=add_info("Decimal Reads", 7, render_decimalreads))) { free(infos); return(e); }
 	#endif
 	#if INFO_Z80_DISASSEMBLER
+	zinf=ninfos;
 	if((e=add_info("Z80 Disassembler", 23, render_z80disasm))) { free(infos); return(e); }
 	#endif
 	display=malloc(ninfos*sizeof(bool));

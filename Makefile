@@ -12,7 +12,7 @@ all: he
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-infos.o z80.o: info_choice.h
+he infos.o z80.o: info_choice.h
 
 he: he.c $(INCLUDES) $(LIBS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< $(LDFLAGS) -o $@ $(LIBS)
