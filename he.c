@@ -45,9 +45,15 @@ int main(int argc, char *argv[])
 {
 	setlocale(LC_ALL, "");
 	char *file=NULL;
+	bool colour=true;
 	for(int arg=1;arg<argc;arg++)
 	{
-		file=argv[arg];
+		if(strcmp(argv[arg], "--colour")==0)
+			colour=true;
+		else if(strcmp(argv[arg], "--no-colour")==0)
+			colour=false;
+		else
+			file=argv[arg];
 	}
 	string fbuf=null_string();
 	if(file)
@@ -92,9 +98,17 @@ int main(int argc, char *argv[])
 		unsigned int y, x;
 		for(y=2;y<rows-irows;y++)
 		{
+			if(!colour||(y+scroll+2)&3)
+				attron(COLOR_PAIR(1));
+			else
+				attron(COLOR_PAIR(2));
 			mvprintw(y, 0, "0x%08x ", (y+scroll-2)*hcols);
 			for(x=0;x<hcols;x++)
 			{
+				if(!colour||((x&3)&&((y+scroll+2)&3)))
+					attron(COLOR_PAIR(1));
+				else
+					attron(COLOR_PAIR(2));
 				unsigned int addr=(y+scroll-2)*hcols+x;
 				if(addr<fbuf.i)
 				{
@@ -144,6 +158,7 @@ int main(int argc, char *argv[])
 			}
 			if(x<hcols) break;
 		}
+		attron(COLOR_PAIR(1));
 		int key=getch();
 		if(left&&isxdigit(key))
 		{
@@ -310,6 +325,9 @@ int main(int argc, char *argv[])
 						}
 					}
 					errupt++;
+				break;
+				case '%': // % - toggle colour
+					colour=!colour;
 				break;
 				case KEY_IC:
 					if(addr>fbuf.i) status("Can't insert - cursor is in outer space");
@@ -536,6 +554,9 @@ int initialise_curses(void)
 		fprintf(stderr, "he: initialise_curses: keypad() call failed\n");
 		return(1);
 	}
+	start_color();
+	init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	init_pair(2, COLOR_YELLOW, COLOR_BLACK);
 	curs_set(0);
 	return(0);
 }

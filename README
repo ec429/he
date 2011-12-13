@@ -3,6 +3,7 @@ he - a hex editor for assembly programmers
 ==Display==
 his display is bracketed above by the titlebar (showing the current filename and length in bytes) and below by the 'infos' area, which includes the status line.  (See the section on 'Infos', below).
 The main body of the display is given over to data.  These data are arranged in rows (in an 80-column terminal, each row is 16 bytes); the address on the left, the hexadecimal in the middle, and ASCII on the right.  In the ASCII display, characters with the high bit set are displayed in inverse video.
+The data area has a yellow grid to make aligned tabular data easier to read; you can disable this on the command line with --no-colours, or toggle it by pressing %.
 
 ==Editing==
 he has two input modes, hex and char; these are toggled with Tab.  The cursor will be highlighted in the pane corresponding to the current input mode.
