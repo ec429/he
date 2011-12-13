@@ -34,7 +34,7 @@
 #include "z80.h"
 #endif
 
-#define VERSION	"0.0.1"
+#define VERSION	"0.1.0"
 
 int initialise_curses(void);
 void status(const char *st);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "he: failed to init_infos\n");
 		return(EXIT_FAILURE);
 	}
-	bool unsaved=!file;
+	bool unsaved=false;
 	unsigned int rows, cols;
 	getmaxyx(stdscr, rows, cols);
 	draw_title(file, fbuf, unsaved);
@@ -103,18 +103,18 @@ int main(int argc, char *argv[])
 						if(half)
 						{
 							attron(A_BOLD);
-							mvprintw(y, (x*3)+11, "%02x", c);
+							mvprintw(y, (x*3)+12, "%02x", c);
 							attron(A_STANDOUT);
-							mvprintw(y, (x*3)+12, "%01x", c&0xf);
+							mvprintw(y, (x*3)+13, "%01x", c&0xf);
 						}
 						else
 						{
 							attron(left?A_STANDOUT|A_BOLD:A_BOLD);
-							mvprintw(y, (x*3)+11, "%02x", c);
+							mvprintw(y, (x*3)+12, "%02x", c);
 						}
 					}
 					else
-						mvprintw(y, (x*3)+11, "%02x", c);
+						mvprintw(y, (x*3)+12, "%02x", c);
 					attroff(A_STANDOUT|A_BOLD);
 					addch(' ');
 					if(c&0x80)
@@ -131,12 +131,12 @@ int main(int argc, char *argv[])
 					if((y==cursy+2)&&(x==cursx))
 						attron(A_STANDOUT);
 					if(left)
-						mvprintw(y, (x*3)+11, "  ");
+						mvprintw(y, (x*3)+12, "  ");
 					else
 						mvaddch(y, x+(hcols*3)+13, ' ');
 					attroff(A_STANDOUT);
 					if(!left)
-						mvprintw(y, (x*3)+11, "  ");
+						mvprintw(y, (x*3)+12, "  ");
 					else
 						mvaddch(y, x+(hcols*3)+13, ' ');
 				}
@@ -246,6 +246,15 @@ int main(int argc, char *argv[])
 					file=NULL;
 					/* fallthrough */
 				case 18: // C-r = Read file
+					if(unsaved)
+					{
+						status("Unsaved!  Are you sure? [y/n]");
+						if(tolower(getch())!='y')
+						{
+							status("Cancelled read");
+							break;
+						}
+					}
 					if(!file)
 					{
 						string fn=init_string();
@@ -288,6 +297,15 @@ int main(int argc, char *argv[])
 					}
 				break;
 				case 24: // C-x = exit
+					if(unsaved)
+					{
+						status("Unsaved!  Are you sure? [y/n]");
+						if(tolower(getch())!='y')
+						{
+							status("Cancelled");
+							break;
+						}
+					}
 					errupt++;
 				break;
 				case KEY_IC:

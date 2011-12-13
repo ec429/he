@@ -9,7 +9,8 @@ he has two input modes, hex and char; these are toggled with Tab.  The cursor wi
 You can change the byte under the cursor by typing hex digits (in hex mode) or any character (in char mode); the cursor will advance to the right as you type.  You can also insert or delete bytes with Ins and Del.
 The cursor can be moved with the cursor keys or with PgUp/PgDn; the display will jumpscroll when the cursor is moved off the screen.
 The buffer can be saved with C-o, or saved to a new filename with C-p.
-To exit (without saving!) press C-x.
+To load a new file, press C-f; to reload the current file (discarding your changes), press C-r.  In either case, if you haven't saved, you will be asked to confirm.
+To exit, press C-x.  If you haven't saved, you will be asked for confirmation.
 
 ==Infos==
 he can display various kinds of information about the data under the cursor.  Tap F1 repeatedly to cycle through a list of items, and their corresponding F keys to toggle each one.  Info items are documented below.
