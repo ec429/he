@@ -116,6 +116,63 @@ int render_z80disasm(unsigned int addr, string bytes, bool draw, int maxw)
 	else if(shift&2)
 	{
 		strcpy(what, "ED not done!");
+		switch(x)
+		{
+			case 0:
+			case 3:
+				strcpy(what, "Invalid-ED (Long NOP)");
+			break;
+			case 1:
+				switch(z)
+				{
+					case 0:
+						sprintf(what, "IN %s%s(C)", (y==6)?"":tbl_r[y], (y==6)?"":",");
+					break;
+					case 1:
+						sprintf(what, "OUT (C),%s", (y==6)?"0":tbl_r[y]);
+					break;
+					case 2:
+						sprintf(what, "%s HL,%s", q?"ADC":"SBC", tbl_rp[p]);
+					break;
+					case 3:
+						eat=3;
+						char nn[6];
+						if(more>2)
+							sprintf(nn, "%hu", bytes.buf[addr+prefs+1]+(bytes.buf[addr+prefs+2]<<8));
+						else
+							strcpy(nn, "nn");
+						if(!q)
+							sprintf(what, "LD (%s),%s", nn, tbl_rp[p]);
+						else
+							sprintf(what, "LD %s,(%s)", tbl_rp[p], nn);
+					break;
+					case 4:
+						strcpy(what, "NEG");
+					break;
+					case 5:
+						sprintf(what, "RET%c", (y==1)?'I':'N');
+					break;
+					case 6:
+						sprintf(what, "IM %s", tbl_im[y&3]);
+					break;
+					case 7:
+						strcpy(what, (const char *[8]){"LD I,A","LD R,A","LD A,I","LD A,R","RRD","RLD","NOP","NOP"}[y]);
+					break;
+					default:
+						strcpy(what, "Error z");
+					break;
+				}
+			break;
+			case 2:
+				if((z<4)&&(y>=4))
+					sprintf(what, "%s%s", tbl_bli_b[y-4], tbl_bli_a[z]);
+				else
+					strcpy(what, "Invalid-ED (Long NOP)");
+			break;
+			default:
+				strcpy(what, "Error x");
+			break;
+		}
 	}
 	else
 	{
