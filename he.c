@@ -34,7 +34,7 @@
 #include "z80.h"
 #endif
 
-#define VERSION	"0.1.1"
+#define VERSION	"0.1.2"
 
 int initialise_curses(void);
 void status(const char *st);
@@ -356,7 +356,9 @@ int main(int argc, char *argv[])
 					}
 				break;
 				case KEY_PPAGE:
-					if(scroll)
+					if(cursy>=scrolljump)
+						cursy-=scrolljump;
+					else if(scroll)
 						scroll=max(scroll, scrolljump)-scrolljump;
 					else
 						cursy=cursx=0;
