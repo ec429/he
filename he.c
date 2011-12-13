@@ -39,7 +39,7 @@
 int initialise_curses(void);
 void status(const char *st);
 void curs_status(unsigned int y, unsigned int x, unsigned int hcols, unsigned int scroll);
-void draw_title(const char *file, string fbuf, bool unsaved);
+void draw_title(const char *file, string fbuf, bool unsaved, size_t oldsize);
 
 int main(int argc, char *argv[])
 {
@@ -72,9 +72,10 @@ int main(int argc, char *argv[])
 		return(EXIT_FAILURE);
 	}
 	bool unsaved=false;
+	size_t oldsize=fbuf.i;
 	unsigned int rows, cols;
 	getmaxyx(stdscr, rows, cols);
-	draw_title(file, fbuf, unsaved);
+	draw_title(file, fbuf, unsaved, oldsize);
 	unsigned int hcols=(cols-13)/4;
 	status("Ready");
 	unsigned int scroll=0, cursy=0, cursx=0;
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
 					append_char(&fbuf, half?hv&0xf:(hv&0xf)<<4);
 					unsaved=true;
 				}
-				draw_title(file, fbuf, unsaved);
+				draw_title(file, fbuf, unsaved, oldsize);
 				half++;
 				if(half>1)
 				{
@@ -234,11 +235,12 @@ int main(int argc, char *argv[])
 								fputc(fbuf.buf[i], f);
 							fclose(f);
 							char st[32];
-							sprintf(st, "Wrote out %zu bytes", fbuf.i);
+							sprintf(st, "Wrote out %zu bytes%s", fbuf.i, fbuf.i==oldsize?"":"*");
 							status(st);
 							unsaved=false;
 						}
-						draw_title(file, fbuf, unsaved);
+						oldsize=fbuf.i;
+						draw_title(file, fbuf, unsaved, oldsize);
 					}
 				break;
 				case 6: // C-f = load a File
@@ -293,7 +295,8 @@ int main(int argc, char *argv[])
 							unsaved=false;
 							status("Ready");
 						}
-						draw_title(file, fbuf, unsaved);
+						oldsize=fbuf.i;
+						draw_title(file, fbuf, unsaved, oldsize);
 					}
 				break;
 				case 24: // C-x = exit
@@ -316,7 +319,7 @@ int main(int argc, char *argv[])
 						for(unsigned int i=fbuf.i;i>addr;i--)
 							fbuf.buf[i]=fbuf.buf[i-1];
 						fbuf.buf[addr]=0;
-						draw_title(file, fbuf, unsaved=true);
+						draw_title(file, fbuf, unsaved=true, oldsize);
 					}
 				break;
 				case KEY_DC:
@@ -328,7 +331,7 @@ int main(int argc, char *argv[])
 						fbuf.i--;
 						for(unsigned int i=addr;i<fbuf.i;i++)
 							fbuf.buf[i]=fbuf.buf[i+1];
-						draw_title(file, fbuf, unsaved=true);
+						draw_title(file, fbuf, unsaved=true, oldsize);
 					}
 				break;
 				case KEY_PPAGE:
@@ -448,7 +451,7 @@ int main(int argc, char *argv[])
 								append_char(&fbuf, (unsigned char)key);
 								unsaved=true;
 							}
-							draw_title(file, fbuf, unsaved);
+							draw_title(file, fbuf, unsaved, oldsize);
 							cursx++;
 							if(cursx>=hcols)
 							{
@@ -530,7 +533,7 @@ int initialise_curses(void)
 	return(0);
 }
 
-void draw_title(const char *file, string fbuf, bool unsaved)
+void draw_title(const char *file, string fbuf, bool unsaved, size_t oldsize)
 {
 	unsigned int rows, cols;
 	getmaxyx(stdscr, rows, cols);
@@ -554,6 +557,7 @@ void draw_title(const char *file, string fbuf, bool unsaved)
 			append_str(&titlebar, bytes);
 			append_str(&titlebar, " bytes)");
 		}
+		if(fbuf.i!=oldsize) append_char(&titlebar, '*');
 	}
 	attron(A_REVERSE);
 	mvprintw(0, 0, "%s", titlebar.buf);
