@@ -132,7 +132,6 @@ int main(int argc, char *argv[])
 						mvprintw(y, (x*3)+11, "  ");
 					else
 						mvaddch(y, x+(hcols*3)+13, ' ');
-					break;
 				}
 			}
 			if(x<hcols) break;
@@ -149,6 +148,16 @@ int main(int argc, char *argv[])
 				case 24: // C-x = exit
 					errupt++;
 				break;
+				case KEY_PPAGE:
+					if(scroll)
+						scroll=max(scroll, scrolljump)-scrolljump;
+					else
+						cursy=cursx=0;
+					curs_status(cursy, cursx, hcols, scroll);
+				break;
+				case KEY_NPAGE:
+					cursy+=scrolljump-1;
+					goto kdown;
 				case KEY_UP:
 					kup:
 					if(cursy) cursy--;
@@ -159,11 +168,11 @@ int main(int argc, char *argv[])
 							if(scroll>=scrolljump)
 							{
 								scroll-=scrolljump;
-								cursy=scrolljump;
+								cursy=scrolljump-1;
 							}
 							else
 							{
-								cursy=scroll;
+								cursy=scroll-1;
 								scroll=0;
 							}
 						}
@@ -177,9 +186,14 @@ int main(int argc, char *argv[])
 					cursy++;
 					if((scroll+cursy)*hcols+cursx>fbuf.i)
 					{
-						if((scroll+cursy)*hcols>fbuf.i)
+						while((scroll+cursy)*hcols>fbuf.i)
 							cursy--;
 						cursx=fbuf.i-(scroll+cursy)*hcols;
+					}
+					if(cursy>=rows-irows-2)
+					{
+						scroll+=scrolljump;
+						cursy-=scrolljump;
 					}
 					curs_status(cursy, cursx, hcols, scroll);
 				break;
@@ -240,7 +254,7 @@ void status(const char *st)
 void curs_status(unsigned int y, unsigned int x, unsigned int hcols, unsigned int scroll)
 {
 	char st[64];
-	snprintf(st, 64, "(%hu,%hu) = 0x%08x", y, x, (scroll+y)*hcols+x);
+	snprintf(st, 64, "(%hu,%hu) = 0x%08x = %u", y, x, (scroll+y)*hcols+x, (scroll+y)*hcols+x);
 	status(st);
 }
 
