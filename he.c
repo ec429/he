@@ -295,14 +295,17 @@ int main(int argc, char *argv[])
 				break;
 				case KEY_F(1):
 					if(f1cycle>=ninfos) f1cycle=0;
-					if(infos[f1cycle].name)
+					if(ninfos)
 					{
-						char st[16+strlen(infos[f1cycle].name)];
-						sprintf(st, "F%d: info %s", f1cycle+2, infos[f1cycle].name);
-						status(st);
+						if(infos[f1cycle].name)
+						{
+							char st[16+strlen(infos[f1cycle].name)];
+							sprintf(st, "F%d: info %s", f1cycle+2, infos[f1cycle].name);
+							status(st);
+						}
+						f1cycle++;
+						if(f1cycle>=ninfos) f1cycle=0;
 					}
-					f1cycle++;
-					if(f1cycle>=ninfos) f1cycle=0;
 				break;
 				default:
 					if((key>=KEY_F(2))&&(key<(signed)KEY_F(2+ninfos)))
