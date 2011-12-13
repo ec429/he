@@ -184,6 +184,7 @@ int main(int argc, char *argv[])
 		else
 		{
 			half=0;
+			unsigned int addr=(scroll+cursy)*hcols+cursx;
 			switch(key)
 			{
 				case 5: // C-e = toggle endianness
@@ -192,6 +193,29 @@ int main(int argc, char *argv[])
 				break;
 				case 24: // C-x = exit
 					errupt++;
+				break;
+				case KEY_IC:
+					if(addr>fbuf.i) status("Can't insert - cursor is in outer space");
+					else
+					{
+						append_char(&fbuf, 0);
+						for(unsigned int i=fbuf.i;i>addr;i--)
+							fbuf.buf[i]=fbuf.buf[i-1];
+						fbuf.buf[addr]=0;
+						draw_title(file, fbuf, unsaved=true);
+					}
+				break;
+				case KEY_DC:
+					if(addr>fbuf.i) status("Can't delete - cursor is in outer space");
+					else if(addr==fbuf.i) status("Nothing to delete");
+					else if(!fbuf.i) status("Nothing to delete");
+					else
+					{
+						fbuf.i--;
+						for(unsigned int i=addr;i<fbuf.i;i++)
+							fbuf.buf[i]=fbuf.buf[i+1];
+						draw_title(file, fbuf, unsaved=true);
+					}
 				break;
 				case KEY_PPAGE:
 					if(scroll)
