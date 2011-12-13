@@ -502,6 +502,8 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+	free(file);
+	free_string(&fbuf);
 	endwin();
 	return(EXIT_SUCCESS);
 }
