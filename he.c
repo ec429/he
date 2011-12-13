@@ -318,12 +318,39 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						const char *name=key_name(key);
-						if(name)
+						if(!left && (key<256))
 						{
-							char st[20+strlen(name)];
-							sprintf(st, "No binding for key %s", name);
-							status(st);
+							unsigned int addr=(scroll+cursy)*hcols+cursx;
+							if(addr<fbuf.i)
+							{
+								fbuf.buf[addr]=(unsigned char)key;
+								unsaved=true;
+							}
+							else if(addr==fbuf.i)
+							{
+								append_char(&fbuf, (unsigned char)key);
+								unsaved=true;
+							}
+							draw_title(file, fbuf, unsaved);
+							cursx++;
+							if(cursx>=hcols)
+							{
+								cursx-=hcols;
+								goto kdown;
+							}
+							if((scroll+cursy)*hcols+cursx>fbuf.i)
+								cursx--;
+							curs_status(cursy, cursx, hcols, scroll);
+						}
+						else
+						{
+							const char *name=key_name(key);
+							if(name)
+							{
+								char st[20+strlen(name)];
+								sprintf(st, "No binding for key %s", name);
+								status(st);
+							}
 						}
 					}
 				break;
