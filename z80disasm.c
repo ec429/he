@@ -12,6 +12,11 @@ int main(int argc, char *argv[])
 	{
 		file=argv[arg];
 	}
+	if(!file)
+	{
+		fprintf(stderr, "Usage: z80disasm <filename>\n");
+		return(EXIT_SUCCESS);
+	}
 	FILE *f=fopen(file, "rb");
 	if(!f)
 	{
