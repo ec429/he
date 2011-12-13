@@ -19,8 +19,17 @@ int render_decimalreads(unsigned int addr, string bytes, bool draw, int maxw)
 	if(draw)
 	{
 		unsigned char b=bytes.buf[addr];
-		unsigned int s=(bytes.buf[addr]<<8)+(addr+1<bytes.i?bytes.buf[addr+1]:0);
-		unsigned int as=addr&1?((unsigned int)bytes.buf[addr-1]<<8)+bytes.buf[addr]:s;
+		unsigned int s,as;
+		if(lendian)
+		{
+			s=bytes.buf[addr]+((addr+1<bytes.i?bytes.buf[addr+1]:0)<<8);
+			as=addr&1?(unsigned int)bytes.buf[addr-1]+(bytes.buf[addr]<<8):s;
+		}
+		else
+		{
+			s=(bytes.buf[addr]<<8)+(addr+1<bytes.i?bytes.buf[addr+1]:0);
+			as=addr&1?((unsigned int)bytes.buf[addr-1]<<8)+bytes.buf[addr]:s;
+		}
 		if(parts[0]) printw("U8:%03hhu ", b);
 		if(parts[1]) printw("S8:%0+4hhd ", b);
 		if(parts[2]) printw("U16:%05hu ", s);

@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 	unsigned int scroll=0, cursy=0, cursx=0;
 	bool left=true;
 	unsigned int f1cycle=0;
+	lendian=false;
 	int errupt=0;
 	while(!errupt)
 	{
@@ -153,6 +154,10 @@ int main(int argc, char *argv[])
 		{
 			switch(key)
 			{
+				case 5: // C-e = toggle endianness
+					lendian=!lendian;
+					status(lendian?"Little Endian mode selected":"Big Endian mode selected");
+				break;
 				case 24: // C-x = exit
 					errupt++;
 				break;
@@ -225,7 +230,7 @@ int main(int argc, char *argv[])
 						cursx--;
 					curs_status(cursy, cursx, hcols, scroll);
 				break;
-				case 9:
+				case 9: // tab = switch panes
 					left=!left;
 				break;
 				case KEY_F(1):

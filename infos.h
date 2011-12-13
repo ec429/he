@@ -16,3 +16,5 @@ bool *display;
 int init_infos(void);
 unsigned int countirows(unsigned int addr, string bytes, unsigned int cols);
 void render_irows(unsigned int addr, string bytes, unsigned int cols, unsigned int basey);
+
+bool lendian;
