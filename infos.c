@@ -1,12 +1,14 @@
 #include <stdlib.h>
 #include <curses.h>
 #include "infos.h"
+#include "info_choice.h"
 
+#if INFO_DECIMAL_READS
 int render_decimalreads(unsigned int addr, string bytes, bool draw, int maxw)
 {
 	if(bytes.i<=addr) return(0);
 	int w=0;
-	int pw[6]={7, 7, 10, 10, 11, 11};
+	int pw[6]={7, 8, 10, 11, 11, 12};
 	bool parts[6];
 	for(int p=0;p<6;p++)
 	{
@@ -39,6 +41,11 @@ int render_decimalreads(unsigned int addr, string bytes, bool draw, int maxw)
 	}
 	return(w);
 }
+#endif
+
+#if INFO_Z80_DISASSEMBLER
+#include "z80.h"
+#endif
 
 int add_info(const char *name, int minw, int render(unsigned int, string, bool, int));
 
@@ -47,7 +54,12 @@ int init_infos(void)
 	ninfos=0;
 	infos=NULL;
 	int e=0;
+	#if INFO_DECIMAL_READS
 	if((e=add_info("Decimal Reads", 7, render_decimalreads))) { free(infos); return(e); }
+	#endif
+	#if INFO_Z80_DISASSEMBLER
+	if((e=add_info("Z80 Disassembler", 23, render_z80disasm))) { free(infos); return(e); }
+	#endif
 	display=malloc(ninfos*sizeof(bool));
 	if(!display) { free(infos); return(-1); }
 	for(unsigned int i=0;i<ninfos;i++) display[i]=false;
