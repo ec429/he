@@ -41,7 +41,7 @@ z80disasm z80disasm_opcode(unsigned int addr, string bytes, char *what)
 	int more=bytes.i-addr;
 	unsigned char b=bytes.buf[addr];
 	int shift=0, prefs=0;
-	while((b==0xDD)||(b==0xED)||(b==0xFD))
+	while((b==0xED)||(((b==0xDD)||(b==0xFD))&&!(shift==2)))
 	{
 		shift=(b-0xCD)>>4;
 		more--;
@@ -133,7 +133,7 @@ z80disasm z80disasm_opcode(unsigned int addr, string bytes, char *what)
 			}
 		}
 	}
-	else if(shift&2)
+	else if(shift==2)
 	{
 		switch(x)
 		{
@@ -204,7 +204,10 @@ z80disasm z80disasm_opcode(unsigned int addr, string bytes, char *what)
 						switch(y)
 						{
 							case 0:
-								strcpy(what, "NOP");
+								if(shift&3)
+									strcpy(what, "Long NOP");
+								else
+									strcpy(what, "NOP");
 							break;
 							case 1:
 								strcpy(what, "EX AF,AF'");
