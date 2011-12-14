@@ -423,6 +423,9 @@ int main(int argc, char *argv[])
 				break;
 				case KEY_RIGHT:;
 					int eat=1;
+					#if INFO_UNICODE_UTF8
+					if(display[uinf]&&(ueat>0)&&(ueat<hcols)) eat=ueat;
+					#endif
 					#if INFO_Z80_DISASSEMBLER
 					if(display[zinf]&&(zeat>0)&&(zeat<hcols)) eat=zeat;
 					#endif

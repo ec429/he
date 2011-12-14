@@ -27,3 +27,7 @@ This item displays the byte under the cursor in binary.
 Toggle: C-d
 This item disassembles a full ZiLog Z80 opcode starting at the cursor, and displays it in mnemonic form.  It also displays the breakdown of the opcode into S (shiftstate), X, Y, and Z parts, in the notation of <http://www.z80.info/decoding.htm>.
 When this info item is enabled, the right cursor key will advance to the next opcode rather than the next byte.
+===Unicode UTF-8===
+Toggle: "
+This item reads a UTF-8 character, starting at the cursor, and displays its Unicode codepoint and canonical name.
+When this info item is enabled, the right cursor key will advance to the next character rather than the next byte.

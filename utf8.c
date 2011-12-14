@@ -278,10 +278,11 @@ int render_utf8(unsigned int addr, string bytes, bool draw, int maxw)
 		name=utbl[off].name;
 		w=strlen(name);
 	}
+	ueat=s;
 	if(!name||(maxw<12+len+(signed)strlen(name)))
 	{
 		if(draw)
-			printf("UTF8: U+%0*x ", len, code);
+			printw("UTF8: U+%0*x ", len, code);
 		return(9+len);
 	}
 	else
