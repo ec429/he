@@ -4,15 +4,15 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 LDFLAGS := -lncurses
 
-INCLUDES := bits.h keynames.h infos.h z80.h
-LIBS := bits.o keynames.o infos.o z80.o
+INCLUDES := bits.h keynames.h infos.h z80.h utf8.h
+LIBS := bits.o keynames.o infos.o z80.o utf8.o
 
 all: he z80disasm
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-he infos.o z80.o: info_choice.h
+he $(LIBS): info_choice.h
 
 he: he.c $(INCLUDES) $(LIBS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< $(LDFLAGS) -o $@ $(LIBS)

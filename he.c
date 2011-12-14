@@ -33,6 +33,9 @@
 #if INFO_Z80_DISASSEMBLER
 #include "z80.h"
 #endif
+#if INFO_UNICODE_UTF8
+#include "utf8.h"
+#endif
 
 #define VERSION	"0.1.2"
 
@@ -91,6 +94,9 @@ int main(int argc, char *argv[])
 	bool left=true;
 	unsigned int f1cycle=0;
 	lendian=false;
+	#if INFO_UNICODE_UTF8
+	init_unicode();
+	#endif
 	int half=0;
 	int errupt=0;
 	while(!errupt)
