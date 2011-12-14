@@ -364,9 +364,9 @@ z80disasm z80disasm_opcode(unsigned int addr, string bytes, char *what)
 				{
 					eat=2;
 					if(more>1)
-						sprintf(what, "%s (%s%+hhd)", tbl_alu[y], hixy, bytes.buf[addr+prefs+1]);
+						sprintf(what, "%s(%s%+hhd)", tbl_alu[y], hixy, bytes.buf[addr+prefs+1]);
 					else
-						sprintf(what, "%s (%s+d)", tbl_alu[y], hixy);
+						sprintf(what, "%s(%s+d)", tbl_alu[y], hixy);
 				}
 				else
 					sprintf(what, "%s%s%s", tbl_alu[y], ixifz, tbl_r[z]);
