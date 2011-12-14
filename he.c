@@ -528,7 +528,7 @@ void status(const char *st)
 	getmaxyx(stdscr, rows, cols);
 	attron(A_BOLD);
 	mvprintw(rows-1, 0, "%.*s", cols, st);
-	unsigned int y, x;
+	unsigned int y, __attribute__((unused)) x;
 	getyx(stdscr, y, x);
 	for(;y<cols;y++)
 		addch(' ');
@@ -579,7 +579,7 @@ int initialise_curses(void)
 
 void draw_title(const char *file, string fbuf, bool unsaved, size_t oldsize)
 {
-	unsigned int rows, cols;
+	unsigned int __attribute__((unused)) rows, cols;
 	getmaxyx(stdscr, rows, cols);
 	string titlebar=make_string(" he");
 	append_str(&titlebar, " "VERSION);
@@ -605,7 +605,7 @@ void draw_title(const char *file, string fbuf, bool unsaved, size_t oldsize)
 	}
 	attron(A_REVERSE);
 	mvprintw(0, 0, "%s", titlebar.buf);
-	unsigned int y, x;
+	unsigned int __attribute__((unused)) y, x;
 	getyx(stdscr, y, x);
 	for(;x<cols;x++)
 		addch(' ');
