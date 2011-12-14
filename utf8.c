@@ -279,7 +279,7 @@ int render_utf8(unsigned int addr, string bytes, bool draw, int maxw)
 		w=strlen(name);
 	}
 	ueat=s;
-	if(!name||(maxw<12+len+(signed)strlen(name)))
+	if(!name||(maxw<12+len+(signed)w))
 	{
 		if(draw)
 			printw("UTF8: U+%0*x ", len, code);
@@ -289,7 +289,7 @@ int render_utf8(unsigned int addr, string bytes, bool draw, int maxw)
 	{
 		if(draw)
 			printw("UTF8: U+%0*x = %s ", len, code, name);
-		return(12+len+strlen(name));
+		return(12+len+w);
 	}
 }
 #endif
