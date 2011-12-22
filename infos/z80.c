@@ -8,7 +8,7 @@ const char *tbl_rp2[4]={"BC","DE","HL","AF"};
 const char *tbl_cc[8]={"NZ","Z","NC","C","PO","PE","P","M"};
 const char *tbl_alu[8]={"ADD A,","ADC A,","SUB ","SBC A,","AND ","XOR ","OR ","CP "};
 const char *tbl_rot[8]={"RLC","RRC","RL","RR","SLA","SRA","SLL","SRL"};
-const char *tbl_im[4]={"0","1","1","2"};
+const char *tbl_im[4]={"0","0","1","2"};
 const char *tbl_bli_a[4]={"I","D","IR","DR"};
 const char *tbl_bli_b[4]={"LD","CP","IN","OT"};
 
