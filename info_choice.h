@@ -2,3 +2,4 @@
 #define INFO_BINARY				1
 #define INFO_Z80_DISASSEMBLER	1
 #define INFO_UNICODE_UTF8		1
+#define INFO_MIDI				1

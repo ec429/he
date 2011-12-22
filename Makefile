@@ -5,8 +5,8 @@ CFLAGS := -Wall -Wextra -Werror -pedantic --std=gnu99 -g
 CPPFLAGS := -iquote . -iquote infos
 LDFLAGS := -lncurses
 
-INCLUDES := bits.h keynames.h infos/infos.h infos/z80.h infos/utf8.h
-LIBS := bits.o keynames.o infos/infos.o infos/z80.o infos/utf8.o
+INCLUDES := bits.h keynames.h infos/infos.h infos/z80.h infos/utf8.h infos/midi.h
+LIBS := bits.o keynames.o infos/infos.o infos/z80.o infos/utf8.o infos/midi.o
 
 all: he z80disasm
 

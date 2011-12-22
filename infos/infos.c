@@ -72,6 +72,10 @@ int render_binary(unsigned int addr, string bytes, bool draw, int maxw)
 #include "utf8.h"
 #endif
 
+#if INFO_MIDI
+#include "midi.h"
+#endif
+
 int add_info(const char *name, int minw, int render(unsigned int, string, bool, int), int);
 
 int init_infos(void)
@@ -92,6 +96,10 @@ int init_infos(void)
 	#if INFO_UNICODE_UTF8
 	uinf=ninfos;
 	if((e=add_info("Unicode UTF-8", 13, render_utf8, '"'))) { free(infos); return(e); }
+	#endif
+	#if INFO_MIDI
+	minf=ninfos;
+	if((e=add_info("MIDI", 40, render_midi, 'M'))) { free(infos); return(e); }
 	#endif
 	display=malloc(ninfos*sizeof(bool));
 	if(!display) { free(infos); return(-1); }
