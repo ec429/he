@@ -21,3 +21,6 @@ he: he.c $(INCLUDES) $(LIBS)
 z80disasm: z80disasm.c bits.h infos/z80.h bits.o infos/z80.o
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< $(LDFLAGS) -o $@ bits.o infos/z80.o
 
+clean:
+	-rm he z80disasm *.o infos/*.o
+
